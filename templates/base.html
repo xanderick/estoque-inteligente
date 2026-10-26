@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block titulo %}Estoque Inteligente{% endblock %}</title>
+
+    <meta name="theme-color" content="#09090b">
+    <meta name="description" content="Sistema inteligente para gerenciamento de estoque.">
+
+    <!-- Fonte moderna Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Estilos do sistema -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- JavaScript do sistema -->
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">E</div>
+
+            <div>
+                <h2>ESTOQUE<span>INTELIGENTE</span></h2>
+                <small>GESTÃO DE INVENTÁRIO</small>
+            </div>
+        </div>
+
+        <div class="menu-label">MENU PRINCIPAL</div>
+
+        <nav class="menu">
+            <a href="{{ url_for('inicio') }}"
+               class="menu-item {{ 'active' if pagina == 'dashboard' else '' }}">
+                <span>▦</span>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('pagina_produtos') }}"
+               class="menu-item {{ 'active' if pagina == 'produtos' else '' }}">
+                <span>▣</span>
+                Produtos
+            </a>
+
+            <a href="{{ url_for('pagina_movimentacoes') }}"
+               class="menu-item {{ 'active' if pagina == 'movimentacoes' else '' }}">
+                <span>⇄</span>
+                Movimentações
+            </a>
+
+            <a href="{{ url_for('alertas') }}"
+               class="menu-item {{ 'active' if pagina == 'alertas' else '' }}">
+                <span>⚠</span>
+                Alertas de estoque
+
+                {% if total_alertas %}
+                    <span class="badge">{{ total_alertas }}</span>
+                {% endif %}
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="status-dot"></div>
+            Sistema conectado
+            <small>Estoque Inteligente v1.0</small>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">
+                    SISTEMA / <span>PAINEL DE CONTROLE</span>
+                </p>
+
+                <h1>{% block cabecalho %}Dashboard{% endblock %}</h1>
+
+                <p class="subtitle">
+                    {% block subtitulo %}
+                        Acompanhe o desempenho do seu estoque.
+                    {% endblock %}
+                </p>
+            </div>
+
+            <div class="topbar-status">
+                <span class="status-dot"></span>
+                Sistema operacional
+            </div>
+        </header>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <div class="notifications">
+                    {% for categoria, mensagem in mensagens %}
+                        <div class="notification {{ categoria }}">
+                            <span>{{ mensagem }}</span>
+
+                            <button type="button"
+                                    class="close-notification"
+                                    aria-label="Fechar mensagem">
+                                &times;
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block conteudo %}{% endblock %}
+
+        <footer class="footer">
+            <span>ESTOQUE INTELIGENTE © 2026</span>
+            <span>Desenvolvido com Python e Flask</span>
+        </footer>
+
+    </main>
+</div>
+
+{% block modais %}{% endblock %}
+
+</body>
+</html>

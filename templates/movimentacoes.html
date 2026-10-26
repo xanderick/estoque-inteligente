@@ -1,0 +1,185 @@
+
+{% extends "base.html" %}
+
+{% block titulo %}Movimentações | Estoque Inteligente{% endblock %}
+{% block cabecalho %}Movimentações{% endblock %}
+{% block subtitulo %}Controle de entradas, vendas e perdas do estoque.{% endblock %}
+
+{% block conteudo %}
+<section class="stats-grid">
+    <article class="stat-card">
+        <span class="stat-label">PRODUTOS</span>
+        <h2>{{ total_produtos }}</h2>
+    </article>
+
+    <article class="stat-card">
+        <span class="stat-label">UNIDADES ATUAIS</span>
+        <h2>{{ total_unidades }}</h2>
+    </article>
+
+    <article class="stat-card">
+        <span class="stat-label">ALERTAS DE ESTOQUE</span>
+        <h2>{{ total_alertas }}</h2>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel movement-form-panel">
+        <div class="panel-header">
+            <div>
+                <h2>Registrar movimentação</h2>
+                <p>Informe o produto, a operação e a quantidade.</p>
+            </div>
+        </div>
+
+        {% if produtos %}
+        <form class="movement-form"
+              id="formMovimentacao"
+              action="{{ url_for('movimentar_estoque') }}"
+              method="POST">
+
+            <label for="id_produto">Produto</label>
+            <div class="select-wrap">
+                <select id="id_produto"
+                        name="id_produto"
+                        class="custom-select"
+                        data-placeholder="Selecione um produto"
+                        data-search-placeholder="Pesquisar produto..."
+                        required>
+                    <option value="">Selecione um produto</option>
+                    {% for produto in produtos %}
+                    <option value="{{ produto.id_produto }}">
+                        {{ produto.nome }} — estoque: {{ produto.quantidade }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <label for="tipo">Operação</label>
+            <div class="select-wrap">
+                <select id="tipo"
+                        name="tipo"
+                        class="custom-select"
+                        data-search="false"
+                        required>
+                    <option value="ENTRADA">＋ Entrada de mercadoria</option>
+                    <option value="SAIDA">− Saída de estoque</option>
+                </select>
+            </div>
+
+            <label for="motivo">Motivo da movimentação</label>
+            <div class="select-wrap">
+                <select id="motivo"
+                        name="motivo"
+                        class="custom-select"
+                        data-search="false"
+                        required>
+                    <option value="ENCOMENDA">Encomenda recebida</option>
+                    <option value="VENDA">Venda para cliente</option>
+                    <option value="PERDA">Perda de produto</option>
+                    <option value="AVARIA">Produto avariado</option>
+                </select>
+            </div>
+
+            <label for="quantidade">Quantidade</label>
+            <input
+                id="quantidade"
+                name="quantidade"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Ex.: 5"
+                required
+            >
+
+            <div class="movement-hint">
+                <span class="hint-icon">i</span>
+                <p>O estoque será atualizado automaticamente após a confirmação.</p>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                Confirmar movimentação
+            </button>
+        </form>
+        {% else %}
+        <div class="empty-state">
+            <p>Nenhum produto cadastrado. Cadastre um produto antes de movimentar o estoque.</p>
+            <a class="btn btn-primary" href="{{ url_for('pagina_produtos') }}">
+                Ir para Produtos
+            </a>
+        </div>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Histórico de movimentações</h2>
+                <p>Consulte as operações registradas.</p>
+            </div>
+        </div>
+
+        <div class="table-tools">
+            <input
+                type="search"
+                id="pesquisaMovimentacao"
+                placeholder="Pesquisar movimentação..."
+                aria-label="Pesquisar movimentação"
+            >
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>DATA</th>
+                        <th>PRODUTO</th>
+                        <th>OPERAÇÃO</th>
+                        <th>MOTIVO</th>
+                        <th>QUANTIDADE</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaMovimentacoes">
+                    {% for mov in movimentacoes %}
+                    <tr>
+                        <td>{{ mov.data_movimentacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ mov.nome }}</td>
+
+                        <td>
+                            <span class="status-pill {{ 'normal' if mov.tipo == 'ENTRADA' else 'low' }}">
+                                {{ 'ENTRADA' if mov.tipo == 'ENTRADA' else 'SAÍDA' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if mov.motivo == 'ENCOMENDA' %}
+                                Encomenda recebida
+                            {% elif mov.motivo == 'VENDA' %}
+                                Venda para cliente
+                            {% elif mov.motivo == 'PERDA' %}
+                                Perda de produto
+                            {% elif mov.motivo == 'AVARIA' %}
+                                Produto avariado
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td class="{{ 'text-green' if mov.tipo == 'ENTRADA' else 'text-red' }}">
+                            {{ '+' if mov.tipo == 'ENTRADA' else '-' }}{{ mov.quantidade }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            Nenhuma movimentação registrada.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}

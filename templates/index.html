@@ -1,0 +1,121 @@
+
+{% extends "base.html" %}
+
+{% block titulo %}Dashboard | Estoque Inteligente{% endblock %}
+{% block cabecalho %}Dashboard{% endblock %}
+{% block subtitulo %}Acompanhe o desempenho do seu estoque.{% endblock %}
+
+{% block conteudo %}
+<section class="stats-grid">
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">TOTAL DE PRODUTOS</span>
+            <span class="stat-icon red">▣</span>
+        </div>
+        <h2>{{ total_produtos }}</h2>
+        <p>Produtos cadastrados</p>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">UNIDADES EM ESTOQUE</span>
+            <span class="stat-icon">▤</span>
+        </div>
+        <h2>{{ total_unidades }}</h2>
+        <p>Unidades disponíveis</p>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">VALOR EM ESTOQUE</span>
+            <span class="stat-icon">R$</span>
+        </div>
+        <h2>R$ {{ "%.2f"|format(valor_estoque|float) }}</h2>
+        <p>Valor total dos produtos</p>
+    </article>
+
+    <article class="stat-card alert-card">
+        <div class="stat-top">
+            <span class="stat-label">ESTOQUE BAIXO</span>
+            <span class="stat-icon warning">!</span>
+        </div>
+        <h2>{{ total_alertas }}</h2>
+        <p>Produtos para reposição</p>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Visão geral</h2>
+                <p>Resumo do inventário atual.</p>
+            </div>
+            <a class="btn btn-primary" href="{{ url_for('pagina_produtos') }}">
+                Ver produtos
+            </a>
+        </div>
+
+        <div class="movement-list">
+            <div class="movement-item">
+                <div class="movement-icon entrada">▣</div>
+                <div class="movement-info">
+                    <strong>Produtos cadastrados</strong>
+                    <small>Total de itens diferentes</small>
+                </div>
+                <strong>{{ total_produtos }}</strong>
+            </div>
+
+            <div class="movement-item">
+                <div class="movement-icon entrada">+</div>
+                <div class="movement-info">
+                    <strong>Unidades disponíveis</strong>
+                    <small>Soma das quantidades atuais</small>
+                </div>
+                <strong>{{ total_unidades }}</strong>
+            </div>
+
+            <div class="movement-item">
+                <div class="movement-icon saida">!</div>
+                <div class="movement-info">
+                    <strong>Produtos com estoque baixo</strong>
+                    <small>Precisam de atenção</small>
+                </div>
+                <strong>{{ total_alertas }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Movimentações recentes</h2>
+                <p>Últimas oito operações.</p>
+            </div>
+            <a href="{{ url_for('pagina_movimentacoes') }}">Ver todas</a>
+        </div>
+
+        <div class="movement-list">
+            {% for mov in movimentacoes %}
+            <div class="movement-item">
+                <div class="movement-icon {{ 'entrada' if mov.tipo == 'ENTRADA' else 'saida' }}">
+                    {{ '↓' if mov.tipo == 'ENTRADA' else '↑' }}
+                </div>
+                <div class="movement-info">
+                    <strong>{{ mov.nome }}</strong>
+                    <small>
+                        {{ mov.tipo }} ·
+                        {{ mov.data_movimentacao.strftime('%d/%m/%Y %H:%M') }}
+                    </small>
+                </div>
+                <span class="{{ 'text-green' if mov.tipo == 'ENTRADA' else 'text-red' }}">
+                    {{ '+' if mov.tipo == 'ENTRADA' else '-' }}{{ mov.quantidade }}
+                </span>
+            </div>
+            {% else %}
+            <div class="empty-state">Nenhuma movimentação registrada.</div>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

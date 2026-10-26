@@ -1,0 +1,124 @@
+
+{% extends "base.html" %}
+
+{% block titulo %}Produtos | Estoque Inteligente{% endblock %}
+{% block cabecalho %}Produtos{% endblock %}
+{% block subtitulo %}Cadastre, pesquise e gerencie seus produtos.{% endblock %}
+
+{% block conteudo %}
+<section class="stats-grid">
+    <article class="stat-card">
+        <span class="stat-label">PRODUTOS CADASTRADOS</span>
+        <h2>{{ total_produtos }}</h2>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">UNIDADES EM ESTOQUE</span>
+        <h2>{{ total_unidades }}</h2>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">VALOR DO ESTOQUE</span>
+        <h2>R$ {{ "%.2f"|format(valor_estoque|float) }}</h2>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Cadastrar produto</h2>
+                <p>Preencha os campos abaixo.</p>
+            </div>
+        </div>
+
+        <form action="{{ url_for('cadastrar_produto') }}" method="POST">
+            <label for="nome">Nome do produto</label>
+            <input id="nome" name="nome" maxlength="100" required>
+
+            <label for="descricao">Descrição</label>
+            <input id="descricao" name="descricao" maxlength="255">
+
+            <label for="preco">Preço (R$)</label>
+            <input id="preco" name="preco" type="number"
+                   min="0" step="0.01" required>
+
+            <div class="form-row">
+                <div>
+                    <label for="quantidade">Quantidade inicial</label>
+                    <input id="quantidade" name="quantidade"
+                           type="number" min="0" value="0" required>
+                </div>
+                <div>
+                    <label for="estoque_minimo">Estoque mínimo</label>
+                    <input id="estoque_minimo" name="estoque_minimo"
+                           type="number" min="0" value="5" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                Cadastrar produto
+            </button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Produtos cadastrados</h2>
+                <p>Consulte e gerencie o inventário.</p>
+            </div>
+        </div>
+
+        <div class="table-tools">
+            <input type="search" id="pesquisaProduto"
+                   placeholder="Pesquisar produto..."
+                   aria-label="Pesquisar produto">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>PRODUTO</th>
+                        <th>PREÇO</th>
+                        <th>QUANTIDADE</th>
+                        <th>STATUS</th>
+                        <th>AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaProdutos">
+                    {% for produto in produtos %}
+                    <tr>
+                        <td>#{{ produto.id_produto }}</td>
+                        <td>{{ produto.nome }}</td>
+                        <td>R$ {{ "%.2f"|format(produto.preco|float) }}</td>
+                        <td>{{ produto.quantidade }}</td>
+                        <td>
+                            {% if produto.quantidade <= produto.estoque_minimo %}
+                                <span class="status-pill low">Estoque baixo</span>
+                            {% else %}
+                                <span class="status-pill normal">Disponível</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{{ url_for('excluir_produto', id_produto=produto.id_produto) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Deseja excluir este produto?')">
+                                <button type="submit" class="btn-icon delete"
+                                        title="Excluir produto">×</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Nenhum produto cadastrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}

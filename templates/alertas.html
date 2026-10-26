@@ -1,0 +1,84 @@
+
+{% extends "base.html" %}
+
+{% block titulo %}Alertas de estoque | Estoque Inteligente{% endblock %}
+{% block cabecalho %}Alertas de estoque{% endblock %}
+{% block subtitulo %}Identifique produtos que precisam de reposição.{% endblock %}
+
+{% block conteudo %}
+<section class="stats-grid">
+    <article class="stat-card alert-card">
+        <div class="stat-top">
+            <span class="stat-label">PRODUTOS EM ALERTA</span>
+            <span class="stat-icon warning">!</span>
+        </div>
+        <h2>{{ produtos|length }}</h2>
+        <p>Produtos no mínimo ou abaixo dele</p>
+    </article>
+
+    <article class="stat-card">
+        <span class="stat-label">TOTAL DE PRODUTOS</span>
+        <h2>{{ total_produtos }}</h2>
+        <p>Itens cadastrados</p>
+    </article>
+
+    <article class="stat-card">
+        <span class="stat-label">UNIDADES EM ESTOQUE</span>
+        <h2>{{ total_unidades }}</h2>
+        <p>Quantidade atual</p>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Produtos que precisam de reposição</h2>
+                <p>Confira a quantidade atual e o estoque mínimo.</p>
+            </div>
+            <a class="btn btn-primary" href="{{ url_for('pagina_produtos') }}">
+                Ver produtos
+            </a>
+        </div>
+
+        <div class="table-tools">
+            <input type="search" id="pesquisaProduto"
+                   placeholder="Pesquisar produto..."
+                   aria-label="Pesquisar produto">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>PRODUTO</th>
+                        <th>QUANTIDADE ATUAL</th>
+                        <th>ESTOQUE MÍNIMO</th>
+                        <th>SITUAÇÃO</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaProdutos">
+                    {% for produto in produtos %}
+                    <tr>
+                        <td>#{{ produto.id_produto }}</td>
+                        <td>{{ produto.nome }}</td>
+                        <td class="text-red">{{ produto.quantidade }}</td>
+                        <td>{{ produto.estoque_minimo }}</td>
+                        <td>
+                            <span class="status-pill low">Reposição necessária</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            Nenhum alerta! Todos os produtos estão acima do estoque mínimo.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}
